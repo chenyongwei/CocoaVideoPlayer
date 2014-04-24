@@ -1,0 +1,106 @@
+{
+    "content": {
+        "poster": {
+            "url": "poster.jpg"
+        },
+        "scripts": [
+            {
+                "endTime": "00:08:420",
+                "startTime": "00:02:502",
+                "txt": "[TODD] Passport, ticket, uh, don’t need a visa for Sweden."
+            },
+            {
+                "endTime": "00:09:926",
+                "startTime": "00:08:420",
+                "txt": "[SALLY] Are you going somewhere?"
+            },
+            {
+                "endTime": "00:12:289",
+                "startTime": "00:09:926",
+                "txt": "[TODD] Joan called last night, around 3 o’clock."
+            },
+            {
+                "endTime": "00:13:242",
+                "startTime": "00:12:289",
+                "txt": "[SALLY] In the morning?"
+            },
+            {
+                "endTime": "00:21:188",
+                "startTime": "00:13:242",
+                "txt": "[TODD] Yeah. I’m flying to, uh, Stockholm. There’s a ... She needs help with a client. I packed this morning."
+            },
+            {
+                "endTime": "00:25:010",
+                "startTime": "00:21:188",
+                "txt": "[SALLY] Stockholm? That’s a long trip. Looks like you’re in a hurry."
+            },
+            {
+                "endTime": "00:31:735",
+                "startTime": "00:25:010",
+                "txt": "[TODD] My flight leaves in three hours, and I haven’t printed my boarding pass, called a taxi or ..."
+            },
+            {
+                "endTime": "00:39:769",
+                "startTime": "00:31:210",
+                "txt": "[SALLY] Todd, let me help. How about you print your boarding pass? I'll call a taxi for you. What time’s your flight?"
+            },
+            {
+                "endTime": "00:41:848",
+                "startTime": "00:40:847",
+                "txt": "[TODD] It’s 5:15."
+            },
+            {
+                "endTime": "00:46:811",
+                "startTime": "00:42:730",
+                "txt": "[SALLY] You have plenty of time. What’s the airline?"
+            },
+            {
+                "endTime": "00:52:387",
+                "startTime": "00:46:811",
+                "txt": "[TODD] It’s, uh, it's Western Airlines. I leave from, uh, the international terminal."
+            },
+            {
+                "endTime": "01:02:863",
+                "startTime": "00:52:465",
+                "txt": "[SALLY] Okay. Western. No problem. Yes. I need a taxi at 3 p.m."
+            }
+        ],
+        "video": {
+            "url": "video.mp4"
+        },
+        "cueMarks": [
+            {
+                "timeline": "00:03:650",
+                "txt": "passport"
+            },
+            {
+                "timeline": "00:04:323",
+                "txt": "ticket"
+            },
+            {
+                "timeline": "00:08:051",
+                "txt": "visa"
+            },
+            {
+                "timeline": "00:23:451",
+                "txt": "trip"
+            },
+            {
+                "timeline": "00:26:804",
+                "txt": "flight"
+            },
+            {
+                "timeline": "00:29:809",
+                "txt": "boarding pass"
+            },
+            {
+                "timeline": "00:46:924",
+                "txt": "airline"
+            },
+            {
+                "timeline": "00:52:362",
+                "txt": "international terminal"
+            }
+        ]
+    }
+}
