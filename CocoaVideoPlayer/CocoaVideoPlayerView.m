@@ -9,6 +9,7 @@
 #import "CocoaVideoPlayerView.h"
 #import "CocoaVideoPlayerNotification.h"
 #import "CocoaVideoModel.h"
+#import "FAKFontAwesome.h"
 
 #define PROGRESS_CHECK_INTERVAL 0.2f
 
@@ -92,51 +93,83 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 -(void)setupPlayerUI
 {
+    // player UI configuration
+    // TODO: move to interface
+    CGSize playIconSize = CGSizeMake(80, 80);
+    
     showSubtitles = YES;
     
     self.posterView = [[UIImageView alloc] initWithFrame:self.frame];
     [self addSubview:self.posterView];
     
     self.defaultButton = ({
-        UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(CGRectGetMidX(self.frame) - 30, CGRectGetMidY(self.frame) - 30, 60, 60)];
+        UIButton *btn = [[UIButton alloc] initWithFrame:
+                            CGRectMake(CGRectGetWidth(self.frame) / 2 - playIconSize.width / 2,
+                                       CGRectGetHeight(self.frame) / 2 - playIconSize.height / 2,
+                                       playIconSize.width,
+                                       playIconSize.height)];
         btn.backgroundColor = [UIColor clearColor];
-        //TODO: add image from FontAwesome
-//        [btn setImage:[UIImage videoPlayerDefaultImage] forState:UIControlStateNormal];
+        CGFloat iconSize = 100;
+        FAKFontAwesome *playIcon = [FAKFontAwesome playCircleOIconWithSize:iconSize];
+        [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
+        UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(iconSize, iconSize)];
+        [btn setImage:playIconImage forState:UIControlStateNormal];
         [btn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
         btn;
     });
-    
     [self insertSubview:self.defaultButton aboveSubview:self.posterView];
     
-    self.progressView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 35, self.frame.size.width, 35)];
-    self.progressView.backgroundColor = [UIColor blackColor];
-    self.progressView.alpha = 0.8;
+    self.progressView = ({
+        UIView *v = [[UIView alloc] initWithFrame:
+                        CGRectMake(0,
+                                   CGRectGetHeight(self.frame) - 35,
+                                   CGRectGetWidth(self.frame),
+                                   35)];
+        v.backgroundColor = [UIColor blackColor];
+        v.alpha = 0.8;
+        v;
+    });
     [self insertSubview:self.progressView aboveSubview:self.posterView];
     
-    self.playButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.playButton.frame = CGRectMake(-8, 3, 85, 30);
-    //TODO: add image from FontAwesome
-//    [self.playButton setImage:[UIImage videoPlayerPlayButtonImage]  forState:UIControlStateNormal];
-    [self.playButton addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
+    self.playButton = ({
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(-8, 30, 85, 30);
+        FAKFontAwesome *playIcon = [FAKFontAwesome playCircleOIconWithSize:50];
+        [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
+        UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(50, 50)];
+        [btn setImage:playIconImage  forState:UIControlStateNormal];
+        [btn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
+
+        btn;
+    });
     [self.progressView addSubview:self.playButton];
     
-    self.stopButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.stopButton.frame = CGRectMake(-8, 3, 85, 30);
-//    [self.stopButton setImage:[UIImage videoPlayerPauseButtonImage]  forState:UIControlStateNormal];
-    [self.stopButton addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
+    self.stopButton = ({
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(-8, 3, 85, 30);
+        FAKFontAwesome *stopIcon = [FAKFontAwesome stopIconWithSize:50];
+        [stopIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
+        UIImage *stopIconImage = [stopIcon imageWithSize:CGSizeMake(50, 50)];
+        [self.stopButton setImage:stopIconImage forState:UIControlStateNormal];
+        [btn addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
+        btn;
+    });
     [self.progressView addSubview:self.stopButton];
     
-    self.scrubber = [[UISlider alloc] initWithFrame:CGRectMake(60, 3, self.frame.size.width - 100, 30)];
-    [self.scrubber addTarget:self action:@selector(beginScrubbing:) forControlEvents:UIControlEventTouchDown];
-    [self.scrubber addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchCancel];
-    [self.scrubber addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpInside];
-    [self.scrubber addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpOutside];
-    [self.scrubber addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventTouchDragInside];
-    [self.scrubber addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventValueChanged];
+    self.scrubber = ({
+        UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(60, 3, CGRectGetWidth(self.frame) - 100, 30)];
+        [slider addTarget:self action:@selector(beginScrubbing:) forControlEvents:UIControlEventTouchDown];
+        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchCancel];
+        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpInside];
+        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpOutside];
+        [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventTouchDragInside];
+        [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventValueChanged];
+        slider;
+    });
     [self.progressView addSubview:self.scrubber];
     
     self.subtitleButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.subtitleButton.frame = CGRectMake(self.frame.size.width - 65, 3, 85, 30);
+    self.subtitleButton.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 3, 85, 30);
     //TODO: add image from FontAwesome
 //    [self.subtitleButton setImage:[UIImage videoPlayerSubtitlesOffImage] forState:UIControlStateNormal];
 //    [self.subtitleButton setImage:[UIImage videoPlayerSubtitlesOnImage] forState:UIControlStateSelected];
@@ -144,13 +177,20 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     [self.progressView addSubview:self.subtitleButton];
     self.subtitleButton.selected = showSubtitles;
     
-    self.subtitleView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 65, self.frame.size.width, 30)];
+    self.subtitleView = [[UIView alloc] initWithFrame:
+                            CGRectMake(0,
+                                       CGRectGetHeight(self.frame) - 65,
+                                       CGRectGetWidth(self.frame),
+                                       30)];
     self.subtitleView.backgroundColor = [UIColor blackColor];
     self.subtitleView.alpha = 0.5;
     self.subtitleView.hidden = YES;
     [self insertSubview:self.subtitleView aboveSubview:self.posterView];
     
-    self.subtitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, self.frame.size.height - 65, self.frame.size.width - 20, 30)];
+    self.subtitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10,
+                                                                   CGRectGetHeight(self.frame) - 65,
+                                                                   CGRectGetWidth(self.frame) - 20,
+                                                                   30)];
     self.subtitleLabel.textColor = [UIColor whiteColor];
     self.subtitleLabel.numberOfLines = 0;
     self.subtitleLabel.backgroundColor = [UIColor clearColor];
@@ -161,9 +201,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     self.videoPlayer = [[AVPlayer alloc] initWithPlayerItem:playerItem];
     AVPlayerLayer *playerLayer = ({
         AVPlayerLayer *avLayer = [AVPlayerLayer playerLayerWithPlayer:self.videoPlayer];
-        [avLayer setFrame:self.frame];
+        [avLayer setFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))];
         avLayer.backgroundColor = [[UIColor grayColor] CGColor];
-        
         avLayer;
     });
     
@@ -526,16 +565,16 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         
         if (self.progressView.hidden)
         {
-            self.subtitleLabel.frame = CGRectMake(10, self.frame.size.height - 2 - self.subtitleLabel.frame.size.height, self.frame.size.width - 20, self.subtitleLabel.frame.size.height);
+            self.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 2 - CGRectGetHeight(self.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleLabel.frame));
         }
         else
         {
-            self.subtitleLabel.frame = CGRectMake(10, self.frame.size.height - 37 - self.subtitleLabel.frame.size.height, self.frame.size.width - 20, self.subtitleLabel.frame.size.height);
+            self.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 37 - CGRectGetHeight(self.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleLabel.frame));
         }
         
         self.subtitleLabel.hidden = NO;
         self.subtitleView.hidden = NO;
-        self.subtitleView.frame = CGRectMake(0, self.subtitleLabel.frame.origin.y - 2, self.frame.size.width, self.subtitleLabel.frame.size.height + 5);
+        self.subtitleView.frame = CGRectMake(0, self.subtitleLabel.frame.origin.y - 2, CGRectGetWidth(self.frame), CGRectGetHeight(self.subtitleLabel.frame) + 5);
     }
     else
     {
