@@ -82,10 +82,12 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     if (self)
     {
         [self setupPlayerUI];
+       /*
         [self initScrubberTimer];
         
         [self syncPlayPauseButtons];
         [self syncScrubber];
+        */
     }
     
     return self;
@@ -99,9 +101,13 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     showSubtitles = YES;
     
-    self.posterView = [[UIImageView alloc] initWithFrame:self.frame];
+    self.posterView = [[UIImageView alloc] initWithFrame:
+                            CGRectMake(0,
+                                       0,
+                                       CGRectGetWidth(self.frame),
+                                       CGRectGetHeight(self.frame))];
     [self addSubview:self.posterView];
-    
+
     self.defaultButton = ({
         UIButton *btn = [[UIButton alloc] initWithFrame:
                             CGRectMake(CGRectGetWidth(self.frame) / 2 - playIconSize.width / 2,
@@ -215,6 +221,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap)];
     [self addGestureRecognizer:tapRecognizer];
+
 }
 
 -(void)handleTap
@@ -247,7 +254,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 {
     _poster = poster;
     
-    self.posterView.image = [UIImage imageNamed:poster.absoluteString];
+    NSData *data = [NSData dataWithContentsOfURL:poster];
+    self.posterView.image = [UIImage imageWithData:data];
 }
 
 

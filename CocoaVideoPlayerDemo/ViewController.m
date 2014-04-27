@@ -29,7 +29,9 @@
 -(void)setupVideoPlayerView:(CocoaVideoModel *)videoModel
 {
         self.videoPlayerView.delegate = self;
-        self.videoPlayerView.poster = [NSURL URLWithString:videoModel.imagePath];
+    
+        NSString *posterImagePath = [[NSBundle mainBundle] pathForResource:[videoModel.imagePath stringByReplacingOccurrencesOfString:@".jpg" withString:@""] ofType:@"jpg" inDirectory:@"content/"];
+        self.videoPlayerView.poster = [NSURL fileURLWithPath:posterImagePath];
     
         NSString *videoPath = [[NSBundle mainBundle] pathForResource:[videoModel.videoPath stringByReplacingOccurrencesOfString:@".mp4" withString:@""] ofType:@"mp4" inDirectory:@"content/"];
         self.videoPlayerView.url = [NSURL fileURLWithPath:videoPath];
