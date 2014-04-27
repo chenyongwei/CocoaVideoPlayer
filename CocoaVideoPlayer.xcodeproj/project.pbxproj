@@ -16,6 +16,7 @@
 		858F50C91906C5520099846E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 858F50C71906C5520099846E /* Main.storyboard */; };
 		858F50CC1906C5520099846E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 858F50CB1906C5520099846E /* ViewController.m */; };
 		858F50CE1906C5520099846E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 858F50CD1906C5520099846E /* Images.xcassets */; };
+		85AB71D1190D68F6009BE413 /* CocoaVideoPlayerProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 85AB71D0190D68F6009BE413 /* CocoaVideoPlayerProgressView.m */; };
 		85C3B0DE1909563B000FCAEA /* CocoaVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 85C3B0DD1909563B000FCAEA /* CocoaVideoPlayerView.m */; };
 		85C3B0E4190956D6000FCAEA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 85C3B0E3190956D6000FCAEA /* AVFoundation.framework */; };
 		85C3B0E7190958C7000FCAEA /* CocoaVideoPlayerNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 85C3B0E6190958C7000FCAEA /* CocoaVideoPlayerNotification.m */; };
@@ -44,6 +45,8 @@
 		858F50CB1906C5520099846E /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		858F50CD1906C5520099846E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		858F50D41906C5520099846E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		85AB71CF190D68F6009BE413 /* CocoaVideoPlayerProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaVideoPlayerProgressView.h; sourceTree = "<group>"; };
+		85AB71D0190D68F6009BE413 /* CocoaVideoPlayerProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CocoaVideoPlayerProgressView.m; sourceTree = "<group>"; };
 		85C3B0DC1909563B000FCAEA /* CocoaVideoPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaVideoPlayerView.h; sourceTree = "<group>"; };
 		85C3B0DD1909563B000FCAEA /* CocoaVideoPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CocoaVideoPlayerView.m; sourceTree = "<group>"; };
 		85C3B0E21909567D000FCAEA /* CocoaVideoPlayerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CocoaVideoPlayerDelegate.h; sourceTree = "<group>"; };
@@ -136,12 +139,14 @@
 		858F50EA1906C5990099846E /* CocoaVideoPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				85C3B0F119096392000FCAEA /* DataModel */,
 				85C3B0DC1909563B000FCAEA /* CocoaVideoPlayerView.h */,
 				85C3B0DD1909563B000FCAEA /* CocoaVideoPlayerView.m */,
 				85C3B0E21909567D000FCAEA /* CocoaVideoPlayerDelegate.h */,
 				85C3B0E5190958C7000FCAEA /* CocoaVideoPlayerNotification.h */,
 				85C3B0E6190958C7000FCAEA /* CocoaVideoPlayerNotification.m */,
-				85C3B0F119096392000FCAEA /* DataModel */,
+				85AB71CF190D68F6009BE413 /* CocoaVideoPlayerProgressView.h */,
+				85AB71D0190D68F6009BE413 /* CocoaVideoPlayerProgressView.m */,
 			);
 			path = CocoaVideoPlayer;
 			sourceTree = "<group>";
@@ -260,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85AB71D1190D68F6009BE413 /* CocoaVideoPlayerProgressView.m in Sources */,
 				85C3B0F819096392000FCAEA /* CocoaVideoCueMarkModel.m in Sources */,
 				85C3B0E7190958C7000FCAEA /* CocoaVideoPlayerNotification.m in Sources */,
 				858F50CC1906C5520099846E /* ViewController.m in Sources */,

@@ -10,6 +10,7 @@
 #import "CocoaVideoPlayerNotification.h"
 #import "CocoaVideoModel.h"
 #import "FAKFontAwesome.h"
+#import "CocoaVideoPlayerProgressView.h"
 
 #define PROGRESS_CHECK_INTERVAL 0.2f
 
@@ -124,11 +125,12 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     [self insertSubview:self.defaultButton aboveSubview:self.posterView];
     
     self.progressView = ({
-        UIView *v = [[UIView alloc] initWithFrame:
+        CocoaVideoPlayerProgressView *v = [[CocoaVideoPlayerProgressView alloc] initWithFrame:
                         CGRectMake(0,
                                    CGRectGetHeight(self.frame) - 35,
                                    CGRectGetWidth(self.frame),
                                    35)];
+        
         v.backgroundColor = [UIColor blackColor];
         v.alpha = 0.8;
         v;
@@ -137,13 +139,12 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     self.playButton = ({
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-        btn.frame = CGRectMake(-8, 30, 85, 30);
-        FAKFontAwesome *playIcon = [FAKFontAwesome playCircleOIconWithSize:50];
+        btn.frame = CGRectMake(8, 30, 85, 30);
+        FAKFontAwesome *playIcon = [FAKFontAwesome playCircleOIconWithSize:30];
         [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
-        UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(50, 50)];
+        UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(30, 30)];
         [btn setImage:playIconImage  forState:UIControlStateNormal];
         [btn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
-
         btn;
     });
     [self.progressView addSubview:self.playButton];
