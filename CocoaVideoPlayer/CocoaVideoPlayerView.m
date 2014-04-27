@@ -82,12 +82,10 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     if (self)
     {
         [self setupPlayerUI];
-       /*
+
         [self initScrubberTimer];
-        
         [self syncPlayPauseButtons];
         [self syncScrubber];
-        */
     }
     
     return self;
@@ -176,9 +174,16 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     self.subtitleButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.subtitleButton.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 3, 85, 30);
-    //TODO: add image from FontAwesome
-//    [self.subtitleButton setImage:[UIImage videoPlayerSubtitlesOffImage] forState:UIControlStateNormal];
-//    [self.subtitleButton setImage:[UIImage videoPlayerSubtitlesOnImage] forState:UIControlStateSelected];
+
+    FAKFontAwesome *subTitleIcon = [FAKFontAwesome subscriptIconWithSize:20];
+    [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor grayColor]];
+    UIImage *subTitleOffImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
+    [self.subtitleButton setImage:subTitleOffImage forState:UIControlStateNormal];
+    
+    [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor]];
+    UIImage *subTitleOnImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
+    [self.subtitleButton setImage:subTitleOnImage forState:UIControlStateSelected];
+    
     [self.subtitleButton addTarget:self action:@selector(toggleSubtitle) forControlEvents:UIControlEventTouchUpInside];
     [self.progressView addSubview:self.subtitleButton];
     self.subtitleButton.selected = showSubtitles;
