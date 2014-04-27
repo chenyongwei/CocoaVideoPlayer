@@ -13,9 +13,7 @@
 @interface CocoaVideoScriptModel : MTLModel <MTLJSONSerializing>
 
 @property (nonatomic, copy, readonly) NSString *txt;
-//@property (nonatomic, copy, readonly) NSString *startTime;
-//@property (nonatomic, copy, readonly) NSString *endTime;
-@property (nonatomic, strong, readonly) NSNumber *start;
-@property (nonatomic, strong, readonly) NSNumber *end;
+@property (nonatomic, assign, readonly) double startTime;
+@property (nonatomic, assign, readonly) double endTime;
 
 @end

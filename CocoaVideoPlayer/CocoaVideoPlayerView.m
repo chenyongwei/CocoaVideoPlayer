@@ -392,17 +392,17 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     for (int i = 0; i < [self.cueMarks count]; i++)
     {
-        NSString *timeline = ((CocoaVideoCueMarkModel *)[self.cueMarks objectAtIndex:i]).timeline;
+//        NSString *timeline = ((CocoaVideoCueMarkModel *)[self.cueMarks objectAtIndex:i]).timeline;
         
         // Format NSString to NSDate
-        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-        [dateFormat setDateFormat:@"mm:ss:SSS"];
-        NSDate *date = [dateFormat dateFromString:timeline];
-        
-        // Get the Gregorian calendar
-        NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-        NSDateComponents *dateComponents = [cal components:NSMinuteCalendarUnit | NSSecondCalendarUnit fromDate:date];
-        NSInteger seconds = dateComponents.minute * 60 + dateComponents.second;
+//        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+//        [dateFormat setDateFormat:@"mm:ss:SSS"];
+//        NSDate *date = [dateFormat dateFromString:timeline];
+//        
+//        // Get the Gregorian calendar
+//        NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+//        NSDateComponents *dateComponents = [cal components:NSMinuteCalendarUnit | NSSecondCalendarUnit fromDate:date];
+//        NSInteger seconds = dateComponents.minute * 60 + dateComponents.second;
         
 //        self.cueMarks[i] = [[NSNumber alloc] initWithInt:seconds];
     }
@@ -666,7 +666,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     {
         float minValue = [self.scrubber minimumValue];
         float maxValue = [self.scrubber maximumValue];
-        long time = CMTimeGetSeconds([self.videoPlayer currentTime]) * 1000;
+        double time = CMTimeGetSeconds([self.videoPlayer currentTime]);
         
         [self togglePosterViewWithTime:time];
         [self.scrubber setValue:(maxValue - minValue) * time / duration + minValue];
@@ -675,28 +675,21 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         for (int i = 0; i < [self.subtitles count]; i++)
         {
             CocoaVideoScriptModel *script = (CocoaVideoScriptModel *)self.subtitles[i];
-            
-            if (time >= [script.start doubleValue])
+
+            if (time >= script.startTime && time <= script.endTime)
             {
-                if (time <= [script.end doubleValue])
+                if (self.subtitleLabel.text != script.txt)
                 {
-                    if (self.subtitleLabel.text != script.txt)
-                    {
-                        self.subtitleLabel.text = script.txt;
-                        [self adjustSubtitleLabelSize];
-                    }
-                    break;
+                    self.subtitleLabel.text = script.txt;
+                    [self adjustSubtitleLabelSize];
                 }
-                else
-                {
-                    self.subtitleLabel.text = @"";
-                }
+                break;
             }
             else
             {
                 self.subtitleLabel.text = @"";
             }
-            
+        
             [self adjustSubtitleLabelSize];
         }
     }
