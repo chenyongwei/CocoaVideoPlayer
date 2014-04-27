@@ -666,7 +666,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     {
         float minValue = [self.scrubber minimumValue];
         float maxValue = [self.scrubber maximumValue];
-        double time = CMTimeGetSeconds([self.videoPlayer currentTime]);
+        long time = CMTimeGetSeconds([self.videoPlayer currentTime]) * 1000;
         
         [self togglePosterViewWithTime:time];
         [self.scrubber setValue:(maxValue - minValue) * time / duration + minValue];
