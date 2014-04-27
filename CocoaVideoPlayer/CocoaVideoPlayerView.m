@@ -172,41 +172,50 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     });
     [self.progressView addSubview:self.scrubber];
     
-    self.subtitleButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.subtitleButton.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 3, 85, 30);
-
-    FAKFontAwesome *subTitleIcon = [FAKFontAwesome subscriptIconWithSize:20];
-    [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor grayColor]];
-    UIImage *subTitleOffImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
-    [self.subtitleButton setImage:subTitleOffImage forState:UIControlStateNormal];
-    
-    [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor]];
-    UIImage *subTitleOnImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
-    [self.subtitleButton setImage:subTitleOnImage forState:UIControlStateSelected];
-    
-    [self.subtitleButton addTarget:self action:@selector(toggleSubtitle) forControlEvents:UIControlEventTouchUpInside];
+    self.subtitleButton = ({
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 3, 85, 30);
+        
+        FAKFontAwesome *subTitleIcon = [FAKFontAwesome subscriptIconWithSize:20];
+        [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor grayColor]];
+        UIImage *subTitleOffImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
+        [btn setImage:subTitleOffImage forState:UIControlStateNormal];
+        
+        [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor]];
+        UIImage *subTitleOnImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
+        [btn setImage:subTitleOnImage forState:UIControlStateSelected];
+        
+        [btn addTarget:self action:@selector(toggleSubtitle) forControlEvents:UIControlEventTouchUpInside];
+        btn.selected = showSubtitles;
+        btn;
+    });
     [self.progressView addSubview:self.subtitleButton];
-    self.subtitleButton.selected = showSubtitles;
     
-    self.subtitleView = [[UIView alloc] initWithFrame:
-                            CGRectMake(0,
-                                       CGRectGetHeight(self.frame) - 65,
-                                       CGRectGetWidth(self.frame),
-                                       30)];
-    self.subtitleView.backgroundColor = [UIColor blackColor];
-    self.subtitleView.alpha = 0.5;
-    self.subtitleView.hidden = YES;
+    self.subtitleView = ({
+        UIView *v = [[UIView alloc] initWithFrame:
+         CGRectMake(0,
+                    CGRectGetHeight(self.frame) - 65,
+                    CGRectGetWidth(self.frame),
+                    30)];
+        v.backgroundColor = [UIColor blackColor];
+        v.alpha = 0.5;
+        v.hidden = YES;
+        v;
+    });
     [self insertSubview:self.subtitleView aboveSubview:self.posterView];
     
-    self.subtitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10,
-                                                                   CGRectGetHeight(self.frame) - 65,
-                                                                   CGRectGetWidth(self.frame) - 20,
-                                                                   30)];
-    self.subtitleLabel.textColor = [UIColor whiteColor];
-    self.subtitleLabel.numberOfLines = 0;
-    self.subtitleLabel.backgroundColor = [UIColor clearColor];
-    self.subtitleLabel.text = @"";
-    self.subtitleLabel.hidden = YES;
+    self.subtitleLabel = ({
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10,
+                                                  CGRectGetHeight(self.frame) - 65,
+                                                  CGRectGetWidth(self.frame) - 20,
+                                                  30)];
+        label.textColor = [UIColor whiteColor];
+        label.numberOfLines = 0;
+        label.backgroundColor = [UIColor clearColor];
+        label.text = @"";
+        label.hidden = YES;
+        label;
+    });
     [self insertSubview:self.subtitleLabel aboveSubview:self.subtitleView];
     
     self.videoPlayer = [[AVPlayer alloc] initWithPlayerItem:playerItem];
@@ -216,7 +225,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         avLayer.backgroundColor = [[UIColor grayColor] CGColor];
         avLayer;
     });
-    
     [self.layer insertSublayer:playerLayer below:self.posterView.layer];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
