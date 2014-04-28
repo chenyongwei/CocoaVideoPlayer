@@ -115,10 +115,11 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         btn.backgroundColor = [UIColor clearColor];
         CGFloat iconSize = 100;
         FAKFontAwesome *playIcon = [FAKFontAwesome playCircleOIconWithSize:iconSize];
-        [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
+        [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor]];
         UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(iconSize, iconSize)];
         [btn setImage:playIconImage forState:UIControlStateNormal];
         [btn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
+        btn.alpha = 0.8f;
         btn;
     });
     [self insertSubview:self.playButton aboveSubview:self.posterView];
@@ -306,6 +307,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     if ([self isPlaying])
     {
         [self.videoPlayer pause];
+        self.playButton.hidden = NO;
         [self.controlView showPausedButtons];
         [self hideProgressViewWithDelay];
     }
@@ -468,7 +470,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         [self syncPlayPauseButtons];
     }
 	
-    [self.controlView resetScrubber];
+    [self.controlView setScrubberValue:.0f];
 }
 
 
@@ -789,7 +791,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     if (CMTIME_IS_INVALID(playerDuration))
     {
-        self.controlView.scrubber.minimumValue = 0.0;
+//        self.controlView.scrubber.minimumValue = 0.0;
         
         return;
     }
@@ -798,12 +800,12 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     if (isfinite(duration))
     {
-        float minValue = [self.controlView.scrubber minimumValue];
-        float maxValue = [self.controlView.scrubber maximumValue];
+        float minValue = 0;//[self.controlView.scrubber minimumValue];
+        float maxValue = 1;//[self.controlView.scrubber maximumValue];
         double time = CMTimeGetSeconds([self.videoPlayer currentTime]);
         
         [self togglePosterViewWithTime:time];
-        [self.controlView.scrubber setValue:(maxValue - minValue) * time / duration + minValue];
+        [self.controlView setScrubberValue:(maxValue - minValue) * time / duration + minValue];
         
         // show subtitle
         for (int i = 0; i < [self.subtitles count]; i++)

@@ -12,17 +12,13 @@
 @interface CocoaVideoPlayerView : UIView
 
 @property (nonatomic, strong) NSURL *url;
-
 @property (nonatomic, strong) NSURL *poster;
-
 @property (nonatomic, strong) NSArray *cueMarks;
-
 @property (nonatomic, strong) NSArray *subtitles;
 
 @property (nonatomic, weak) id <CocoaVideoPlayerDelegate> delegate;
 
 -(void)pause;
-
 -(void)stop;
 
 @end

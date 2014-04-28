@@ -11,10 +11,8 @@
 #import "CocoaVideoPlayerControlViewConfiguration.h"
 
 @interface CocoaVideoPlayerControlView()
-{
 
-}
-
+@property (nonatomic, strong) UISlider *scrubber;
 @property (nonatomic, strong) UIButton *playButton;
 @property (nonatomic, strong) UIButton *stopButton;
 @property (nonatomic, strong) UIButton *subtitleButton;
@@ -42,12 +40,13 @@
     
     self.playButton = ({
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-        btn.frame = CGRectMake(8, 30, 85, 30);
-        FAKFontAwesome *playIcon = [FAKFontAwesome playCircleOIconWithSize:30];
-        [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
+        btn.frame = CGRectMake(-8, 3, 85, 30);
+        FAKFontAwesome *playIcon = [FAKFontAwesome playIconWithSize:30];
+        [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor]];
         UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(30, 30)];
-        [btn setImage:playIconImage  forState:UIControlStateNormal];
-        [btn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
+        [btn setImage:playIconImage forState:UIControlStateNormal];
+        [btn addTarget:self action:@selector(play:) forControlEvents:UIControlEventTouchUpInside];
+//        btn.backgroundColor = [UIColor blueColor];
         btn;
     });
     [self addSubview:self.playButton];
@@ -55,11 +54,12 @@
     self.stopButton = ({
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
         btn.frame = CGRectMake(-8, 3, 85, 30);
-        FAKFontAwesome *stopIcon = [FAKFontAwesome stopIconWithSize:50];
-        [stopIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
-        UIImage *stopIconImage = [stopIcon imageWithSize:CGSizeMake(50, 50)];
-        [self.stopButton setImage:stopIconImage forState:UIControlStateNormal];
-        [btn addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
+        FAKFontAwesome *stopIcon = [FAKFontAwesome pauseIconWithSize:30];
+        [stopIcon addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor]];
+        UIImage *stopIconImage = [stopIcon imageWithSize:CGSizeMake(30, 30)];
+        [btn setImage:stopIconImage forState:UIControlStateNormal];
+        [btn addTarget:self action:@selector(pause:) forControlEvents:UIControlEventTouchUpInside];
+//        btn.backgroundColor = [UIColor yellowColor];
         btn;
     });
     [self addSubview:self.stopButton];
@@ -72,6 +72,7 @@
         [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpOutside];
         [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventTouchDragInside];
         [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventValueChanged];
+//        slider.backgroundColor = [UIColor redColor];
         slider;
     });
     [self addSubview:self.scrubber];
@@ -79,15 +80,15 @@
     if (self.config.enableSubtitleButton) {
         self.subtitleButton = ({
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-            btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 3, 85, 30);
+            btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 0, 85, 30);
             
-            FAKFontAwesome *subTitleIcon = [FAKFontAwesome subscriptIconWithSize:20];
+            FAKFontAwesome *subTitleIcon = [FAKFontAwesome subscriptIconWithSize:30];
             [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor grayColor]];
-            UIImage *subTitleOffImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
+            UIImage *subTitleOffImage = [subTitleIcon imageWithSize:CGSizeMake(30, 30)];
             [btn setImage:subTitleOffImage forState:UIControlStateNormal];
             
             [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor]];
-            UIImage *subTitleOnImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
+            UIImage *subTitleOnImage = [subTitleIcon imageWithSize:CGSizeMake(30, 30)];
             [btn setImage:subTitleOnImage forState:UIControlStateSelected];
             
             [btn addTarget:self action:@selector(toggleSubtitleButton) forControlEvents:UIControlEventTouchUpInside];
@@ -112,6 +113,16 @@
 -(void)endScrubbing:(id)sender
 {
     [self.delegate endScrubbing:sender];
+}
+
+-(void)play:(id)sender
+{
+    [self.delegate play];
+}
+
+-(void)pause:(id)sender
+{
+    [self.delegate pause];
 }
 
 -(void)enableScrubber
@@ -141,10 +152,17 @@
     self.stopButton.hidden = YES;   
 }
 
--(void)resetScrubber
+-(void)setScrubberValue:(float)value
 {
-    [self.scrubber setValue:0.0];
+    // the value is from 0 to 1
+//    NSLog(@"scrubber value set to: %f", value);
+    [self.scrubber setValue:value];
 }
+
+//-(void)resetScrubber
+//{
+//    [self.scrubber setValue:0.0];
+//}
 
 
 -(void)toggleSubtitleButton

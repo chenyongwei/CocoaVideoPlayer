@@ -11,6 +11,7 @@
 @protocol CocoaVideoPlayerControlViewDelegate <NSObject>
 
 -(void)play;
+-(void)pause;
 
 -(void)beginScrubbing:(id)sender;
 -(void)scrub:(id)sender;
