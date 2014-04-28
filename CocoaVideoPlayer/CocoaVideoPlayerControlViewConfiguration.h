@@ -10,8 +10,11 @@
 
 @interface CocoaVideoPlayerControlViewConfiguration : NSObject
 
+@property (nonatomic, strong) UIColor *backgroundColor;
+@property (nonatomic) CGFloat alpha;
 @property (nonatomic) CGSize scrubberSize;
 @property (nonatomic) BOOL enableSubtitleButton;
 @property (nonatomic) BOOL highSubtitleButton;
+
 
 @end

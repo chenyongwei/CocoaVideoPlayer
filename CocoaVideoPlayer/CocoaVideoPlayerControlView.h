@@ -15,8 +15,9 @@
 
 @property (nonatomic, strong) UISlider *scrubber;
 
-@property (nonatomic, strong) CocoaVideoPlayerControlViewConfiguration *viewConfig;
 @property (nonatomic, weak) id <CocoaVideoPlayerControlViewDelegate> delegate;
+
+-(id)initWithFrame:(CGRect)frame configuration:(CocoaVideoPlayerControlViewConfiguration *)aConfig;
 
 -(void)enableScrubber;
 -(void)disableScrubber;

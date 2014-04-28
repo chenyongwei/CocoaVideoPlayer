@@ -17,34 +17,28 @@
 
 @property (nonatomic, strong) UIButton *playButton;
 @property (nonatomic, strong) UIButton *stopButton;
-
 @property (nonatomic, strong) UIButton *subtitleButton;
+
+@property (nonatomic, strong) CocoaVideoPlayerControlViewConfiguration *config;
 
 @end
 
 @implementation CocoaVideoPlayerControlView
 
-- (id)initWithFrame:(CGRect)frame
+- (id)initWithFrame:(CGRect)frame configuration:(CocoaVideoPlayerControlViewConfiguration *)aConfig
 {
     self = [super initWithFrame:frame];
     if (self) {
+        self.config = aConfig;
         [self setup];
     }
     return self;
 }
 
--(void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
-    
-    [self setup];
-}
-
 -(void)setup
 {
-    if (CGRectGetWidth(self.frame) == 0 || CGRectGetHeight(self.frame)) {
-        return;
-    }
+    self.backgroundColor = self.config.backgroundColor;
+    self.alpha = self.config.alpha;
     
     self.playButton = ({
         UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -71,7 +65,7 @@
     [self addSubview:self.stopButton];
     
     self.scrubber = ({
-        UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(60, 3, self.viewConfig.scrubberSize.width, self.viewConfig.scrubberSize.height)];
+        UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(60, 3, self.config.scrubberSize.width, self.config.scrubberSize.height)];
         [slider addTarget:self action:@selector(beginScrubbing:) forControlEvents:UIControlEventTouchDown];
         [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchCancel];
         [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpInside];
@@ -82,7 +76,7 @@
     });
     [self addSubview:self.scrubber];
     
-    if (self.viewConfig.enableSubtitleButton) {
+    if (self.config.enableSubtitleButton) {
         self.subtitleButton = ({
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
             btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 3, 85, 30);
@@ -97,7 +91,7 @@
             [btn setImage:subTitleOnImage forState:UIControlStateSelected];
             
             [btn addTarget:self action:@selector(toggleSubtitleButton) forControlEvents:UIControlEventTouchUpInside];
-            btn.selected = self.viewConfig.highSubtitleButton;
+            btn.selected = self.config.highSubtitleButton;
             btn;
         });
         [self addSubview:self.subtitleButton];
@@ -105,8 +99,20 @@
     
 }
 
+-(void)beginScrubbing:(id)sender
+{
+    [self.delegate beginScrubbing:sender];
+}
 
+-(void)scrub:(id)sender
+{
+    [self.delegate scrub:sender];
+}
 
+-(void)endScrubbing:(id)sender
+{
+    [self.delegate endScrubbing:sender];
+}
 
 -(void)enableScrubber
 {
@@ -143,9 +149,9 @@
 
 -(void)toggleSubtitleButton
 {
-    self.viewConfig.highSubtitleButton = !self.viewConfig.highSubtitleButton;
+    self.config.highSubtitleButton = !self.config.highSubtitleButton;
     
-    self.subtitleButton.selected = self.viewConfig.highSubtitleButton;
+    self.subtitleButton.selected = self.config.highSubtitleButton;
     [self.delegate toggleSubtitle];
 }
 
