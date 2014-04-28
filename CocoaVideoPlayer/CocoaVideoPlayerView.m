@@ -143,8 +143,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     });
     [self insertSubview:self.controlView aboveSubview:self.posterView];
     
-    // progress sub views
-    
     self.subtitleView = ({
         UIView *v = [[UIView alloc] initWithFrame:
          CGRectMake(0,
