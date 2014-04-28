@@ -715,7 +715,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
                 [self syncScrubber];
                 
                 [self.progressView disableScrubber];
-                [self.progressView disablePlayerButtons];
             }
                 break;
                 
@@ -728,7 +727,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
                 [self initScrubberTimer];
                 
                 [self.progressView enableScrubber];
-                [self.progressView enablePlayerButtons];
             }
                 break;
                 
@@ -755,7 +753,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         /* Is the new player item null? */
         if (newPlayerItem == (id)[NSNull null])
         {
-            [self.progressView disablePlayerButtons];
             [self.progressView disableScrubber];
         }
         else /* Replacement of player currentItem has occurred */
@@ -864,7 +861,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     [self removePlayerTimeObserver];
     [self syncScrubber];
     [self.progressView disableScrubber];
-    [self.progressView disablePlayerButtons];
     
     /* Display the error. */
 	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]

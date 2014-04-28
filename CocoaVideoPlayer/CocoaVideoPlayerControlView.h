@@ -20,8 +20,6 @@
 
 -(void)enableScrubber;
 -(void)disableScrubber;
--(void)disablePlayerButtons;
--(void)enablePlayerButtons;
 -(void)showPlayingButtons;
 -(void)showPausedButtons;
 

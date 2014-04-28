@@ -111,24 +111,14 @@
 -(void)enableScrubber
 {
     self.scrubber.enabled = YES;
+    self.playButton.enabled = YES;
+    self.stopButton.enabled = YES;
 }
 
 
 -(void)disableScrubber
 {
     self.scrubber.enabled = NO;
-}
-
-
--(void)enablePlayerButtons
-{
-    self.playButton.enabled = YES;
-    self.stopButton.enabled = YES;
-}
-
-
--(void)disablePlayerButtons
-{
     self.playButton.enabled = NO;
     self.stopButton.enabled = NO;
 }
