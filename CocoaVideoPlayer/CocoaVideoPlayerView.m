@@ -10,7 +10,9 @@
 #import "CocoaVideoPlayerNotification.h"
 #import "CocoaVideoModel.h"
 #import "FAKFontAwesome.h"
-#import "CocoaVideoPlayerProgressView.h"
+#import "CocoaVideoPlayerControlView.h"
+#import "CocoaVideoPlayerControlViewDelegate.h"
+#import "CocoaVideoPlayerControlViewConfiguration.h"
 
 #define PROGRESS_CHECK_INTERVAL 0.2f
 
@@ -29,7 +31,7 @@ static void *AVPlayerPlaybackViewControllerRateObservationContext = &AVPlayerPla
 static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerPlaybackViewControllerStatusObservationContext;
 static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPlayerPlaybackViewControllerCurrentItemObservationContext;
 
-@interface CocoaVideoPlayerView()
+@interface CocoaVideoPlayerView() <CocoaVideoPlayerControlViewDelegate>
 {
     id timeObserver;
     float restoreAfterScrubbingRate;
@@ -41,12 +43,14 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 @property (nonatomic, strong) UIImageView *posterView;
 @property (nonatomic, strong) AVPlayer *videoPlayer;
 @property (nonatomic, strong) UIButton *defaultButton;
-@property (nonatomic, strong) UIButton *playButton;
-@property (nonatomic, strong) UIButton *stopButton;
-@property (nonatomic, strong) UISlider *scrubber;
-@property (nonatomic, strong) UIView *progressView;
+@property (nonatomic, strong) CocoaVideoPlayerControlView *progressView;
+//    @property (nonatomic, strong) UIButton *playButton;
+//    @property (nonatomic, strong) UIButton *stopButton;
+//    @property (nonatomic, strong) UISlider *scrubber;
+//    @property (nonatomic, strong) UIButton *subtitleButton;
+
 @property (nonatomic, strong) UILabel *subtitleLabel;
-@property (nonatomic, strong) UIButton *subtitleButton;
+
 @property (nonatomic, strong) UIView *subtitleView;
 
 -(void)adjustSubtitleLabelSize;
@@ -125,7 +129,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     [self insertSubview:self.defaultButton aboveSubview:self.posterView];
     
     self.progressView = ({
-        CocoaVideoPlayerProgressView *v = [[CocoaVideoPlayerProgressView alloc] initWithFrame:
+        CocoaVideoPlayerControlView *v = [[CocoaVideoPlayerControlView alloc] initWithFrame:
                         CGRectMake(0,
                                    CGRectGetHeight(self.frame) - 35,
                                    CGRectGetWidth(self.frame),
@@ -133,64 +137,13 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         
         v.backgroundColor = [UIColor blackColor];
         v.alpha = 0.8;
+        v.viewConfig = [[CocoaVideoPlayerControlViewConfiguration alloc] init];
+        v.viewConfig.scrubberSize = CGSizeMake(CGRectGetHeight(self.frame) - 35 - 100, 30);
         v;
     });
     [self insertSubview:self.progressView aboveSubview:self.posterView];
     
-    self.playButton = ({
-        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-        btn.frame = CGRectMake(8, 30, 85, 30);
-        FAKFontAwesome *playIcon = [FAKFontAwesome playCircleOIconWithSize:30];
-        [playIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
-        UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(30, 30)];
-        [btn setImage:playIconImage  forState:UIControlStateNormal];
-        [btn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
-        btn;
-    });
-    [self.progressView addSubview:self.playButton];
-    
-    self.stopButton = ({
-        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-        btn.frame = CGRectMake(-8, 3, 85, 30);
-        FAKFontAwesome *stopIcon = [FAKFontAwesome stopIconWithSize:50];
-        [stopIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor]];
-        UIImage *stopIconImage = [stopIcon imageWithSize:CGSizeMake(50, 50)];
-        [self.stopButton setImage:stopIconImage forState:UIControlStateNormal];
-        [btn addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
-        btn;
-    });
-    [self.progressView addSubview:self.stopButton];
-    
-    self.scrubber = ({
-        UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(60, 3, CGRectGetWidth(self.frame) - 100, 30)];
-        [slider addTarget:self action:@selector(beginScrubbing:) forControlEvents:UIControlEventTouchDown];
-        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchCancel];
-        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpInside];
-        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpOutside];
-        [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventTouchDragInside];
-        [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventValueChanged];
-        slider;
-    });
-    [self.progressView addSubview:self.scrubber];
-    
-    self.subtitleButton = ({
-        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-        btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 3, 85, 30);
-        
-        FAKFontAwesome *subTitleIcon = [FAKFontAwesome subscriptIconWithSize:20];
-        [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor grayColor]];
-        UIImage *subTitleOffImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
-        [btn setImage:subTitleOffImage forState:UIControlStateNormal];
-        
-        [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor]];
-        UIImage *subTitleOnImage = [subTitleIcon imageWithSize:CGSizeMake(20, 20)];
-        [btn setImage:subTitleOnImage forState:UIControlStateSelected];
-        
-        [btn addTarget:self action:@selector(toggleSubtitle) forControlEvents:UIControlEventTouchUpInside];
-        btn.selected = showSubtitles;
-        btn;
-    });
-    [self.progressView addSubview:self.subtitleButton];
+    // progress sub views
     
     self.subtitleView = ({
         UIView *v = [[UIView alloc] initWithFrame:
@@ -298,6 +251,11 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 #pragma mark - Video control
 
+-(BOOL)isScrubbing
+{
+    return restoreAfterScrubbingRate != 0.f;
+}
+
 -(void)hideProgressView
 {
     if ([self isScrubbing])
@@ -335,8 +293,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         self.defaultButton.hidden = YES;
     }
     self.posterView.hidden = YES;
-    self.playButton.hidden = YES;
-    self.stopButton.hidden = NO;
+    [self.progressView showPlayingButtons];
     [self hideProgressViewWithDelay];
     
     [self.videoPlayer play];
@@ -350,9 +307,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     if ([self isPlaying])
     {
         [self.videoPlayer pause];
-        
-        self.playButton.hidden = NO;
-        self.stopButton.hidden = YES;
+        [self.progressView showPausedButtons];
         [self hideProgressViewWithDelay];
     }
 }
@@ -514,7 +469,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         [self syncPlayPauseButtons];
     }
 	
-    [self.scrubber setValue:0.0];
+    [self.progressView resetScrubber];
 }
 
 
@@ -532,8 +487,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     self.defaultButton.hidden = NO;
     self.posterView.hidden = NO;
-    self.playButton.hidden = NO;
-    self.stopButton.hidden = YES;
+    [self.progressView showPausedButtons];
     self.progressView.hidden = YES;
     [self.videoPlayer seekToTime:kCMTimeZero];
     self.subtitleView.hidden = YES;
@@ -606,16 +560,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 }
 
 
--(void)toggleSubtitle
-{
-    showSubtitles = !showSubtitles;
-    
-    self.subtitleButton.selected = showSubtitles;
-    self.subtitleLabel.hidden = !showSubtitles;
-    self.subtitleView.hidden = !showSubtitles;
-}
-
-
 #pragma mark - Scrubbing
 
 /* Requests invocation of a given block during media playback to update the movie scrubber control. */
@@ -632,79 +576,20 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 	double duration = CMTimeGetSeconds(playerDuration);
 	if (isfinite(duration))
 	{
-		CGFloat width = CGRectGetWidth([self.scrubber bounds]);
+		CGFloat width = self.progressView.viewConfig.scrubberSize.width;
 		interval = 0.5f * duration / width;
 	}
     
-    id selfObj = self;
+    __block __weak CocoaVideoPlayerView *weakSelf = self;
     
 	/* Update the scrubber during normal playback. */
 	timeObserver = [self.videoPlayer addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(interval, NSEC_PER_SEC)
                                                                   queue:NULL /* If you pass NULL, the main queue is used. */
                                                              usingBlock:^(CMTime time)
                     {
-                        [selfObj syncScrubber];
+                        [weakSelf syncScrubber];
                     }];
     
-}
-
-
-/* Set the scrubber based on the player current time. */
--(void)syncScrubber
-{
-    CMTime playerDuration = [self playerItemDuration];
-    
-    if (CMTIME_IS_INVALID(playerDuration))
-    {
-        self.scrubber.minimumValue = 0.0;
-        
-        return;
-    }
-    
-    double duration = CMTimeGetSeconds(playerDuration);
-    
-    if (isfinite(duration))
-    {
-        float minValue = [self.scrubber minimumValue];
-        float maxValue = [self.scrubber maximumValue];
-        double time = CMTimeGetSeconds([self.videoPlayer currentTime]);
-        
-        [self togglePosterViewWithTime:time];
-        [self.scrubber setValue:(maxValue - minValue) * time / duration + minValue];
-        
-        // show subtitle
-        for (int i = 0; i < [self.subtitles count]; i++)
-        {
-            CocoaVideoScriptModel *script = (CocoaVideoScriptModel *)self.subtitles[i];
-
-            if (time >= script.startTime && time <= script.endTime)
-            {
-                if (self.subtitleLabel.text != script.txt)
-                {
-                    self.subtitleLabel.text = script.txt;
-                    [self adjustSubtitleLabelSize];
-                }
-                break;
-            }
-            else
-            {
-                self.subtitleLabel.text = @"";
-            }
-        
-            [self adjustSubtitleLabelSize];
-        }
-    }
-}
-
-
-/* Cancels the previously registered time observer. */
--(void)removePlayerTimeObserver
-{
-    if (timeObserver)
-    {
-        [self.videoPlayer removeTimeObserver:timeObserver];
-        timeObserver = nil;
-    }
 }
 
 
@@ -719,7 +604,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     /* Remove previous timer. */
     [self removePlayerTimeObserver];
 }
-
 
 /* Set the player current time to match the scrubber position. */
 -(void)scrub:(id)sender
@@ -748,7 +632,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 	}
 }
 
-
 /* The user has released the movie thumb control to stop scrubbing through the movie. */
 -(void)endScrubbing:(id)sender
 {
@@ -763,14 +646,14 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 		double duration = CMTimeGetSeconds(playerDuration);
 		if (isfinite(duration))
 		{
-			CGFloat width = CGRectGetWidth([self.scrubber bounds]);
+			CGFloat width = self.progressView.viewConfig.scrubberSize.width;
 			double tolerance = 0.5f * duration / width;
             
-            id selfObj = self;
+            __block __weak CocoaVideoPlayerView *weakSelf = self;
 			timeObserver = [self.videoPlayer addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(tolerance, NSEC_PER_SEC) queue:NULL usingBlock:
                             ^(CMTime time)
                             {
-                                [selfObj syncScrubber];
+                                [weakSelf syncScrubber];
                             }];
 		}
 	}
@@ -785,36 +668,16 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 }
 
 
--(BOOL)isScrubbing
+/* Cancels the previously registered time observer. */
+-(void)removePlayerTimeObserver
 {
-    return restoreAfterScrubbingRate != 0.f;
+    if (timeObserver)
+    {
+        [self.videoPlayer removeTimeObserver:timeObserver];
+        timeObserver = nil;
+    }
 }
 
-
--(void)enableScrubber
-{
-    self.scrubber.enabled = YES;
-}
-
-
--(void)disableScrubber
-{
-    self.scrubber.enabled = NO;
-}
-
-
--(void)enablePlayerButtons
-{
-    self.playButton.enabled = YES;
-    self.stopButton.enabled = YES;
-}
-
-
--(void)disablePlayerButtons
-{
-    self.playButton.enabled = NO;
-    self.stopButton.enabled = NO;
-}
 
 
 #pragma mark - KVO for player rate, currentItem, player item status
@@ -851,8 +714,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
                 [self removePlayerTimeObserver];
                 [self syncScrubber];
                 
-                [self disableScrubber];
-                [self disablePlayerButtons];
+                [self.progressView disableScrubber];
+                [self.progressView disablePlayerButtons];
             }
                 break;
                 
@@ -864,8 +727,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
                 
                 [self initScrubberTimer];
                 
-                [self enableScrubber];
-                [self enablePlayerButtons];
+                [self.progressView enableScrubber];
+                [self.progressView enablePlayerButtons];
             }
                 break;
                 
@@ -892,8 +755,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         /* Is the new player item null? */
         if (newPlayerItem == (id)[NSNull null])
         {
-            [self disablePlayerButtons];
-            [self disableScrubber];
+            [self.progressView disablePlayerButtons];
+            [self.progressView disableScrubber];
         }
         else /* Replacement of player currentItem has occurred */
         {
@@ -914,15 +777,62 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 {
     if ([self isPlaying])
     {
-        self.playButton.hidden = YES;
-        self.stopButton.hidden = NO;
+        [self.progressView showPlayingButtons];
     }
     else
     {
-        self.playButton.hidden = NO;
-        self.stopButton.hidden = YES;
+        [self.progressView showPausedButtons];
     }
 }
+
+
+/* Set the scrubber based on the player current time. */
+-(void)syncScrubber
+{
+    CMTime playerDuration = [self playerItemDuration];
+    
+    if (CMTIME_IS_INVALID(playerDuration))
+    {
+        self.progressView.scrubber.minimumValue = 0.0;
+        
+        return;
+    }
+    
+    double duration = CMTimeGetSeconds(playerDuration);
+    
+    if (isfinite(duration))
+    {
+        float minValue = [self.progressView.scrubber minimumValue];
+        float maxValue = [self.progressView.scrubber maximumValue];
+        double time = CMTimeGetSeconds([self.videoPlayer currentTime]);
+        
+        [self togglePosterViewWithTime:time];
+        [self.progressView.scrubber setValue:(maxValue - minValue) * time / duration + minValue];
+        
+        // show subtitle
+        for (int i = 0; i < [self.subtitles count]; i++)
+        {
+            CocoaVideoScriptModel *script = (CocoaVideoScriptModel *)self.subtitles[i];
+            
+            if (time >= script.startTime && time <= script.endTime)
+            {
+                if (self.subtitleLabel.text != script.txt)
+                {
+                    self.subtitleLabel.text = script.txt;
+                    [self adjustSubtitleLabelSize];
+                }
+                break;
+            }
+            else
+            {
+                self.subtitleLabel.text = @"";
+            }
+            
+            [self adjustSubtitleLabelSize];
+        }
+    }
+}
+
 
 
 -(BOOL)isPlaying
@@ -930,6 +840,13 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     return restoreAfterScrubbingRate != 0.f || [self.videoPlayer rate] != 0.f;
 }
 
+
+-(void)toggleSubtitle
+{
+    showSubtitles = !showSubtitles;
+    self.subtitleLabel.hidden = !showSubtitles;
+    self.subtitleView.hidden = !showSubtitles;
+}
 
 #pragma mark - Error Handling
 
@@ -946,8 +863,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 {
     [self removePlayerTimeObserver];
     [self syncScrubber];
-    [self disableScrubber];
-    [self disablePlayerButtons];
+    [self.progressView disableScrubber];
+    [self.progressView disablePlayerButtons];
     
     /* Display the error. */
 	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]
