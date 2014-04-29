@@ -67,13 +67,10 @@
     self.scrubber = ({
         UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(60, 3, self.config.scrubberSize.width, self.config.scrubberSize.height)];
         [slider addTarget:self action:@selector(beginScrubbing:) forControlEvents:UIControlEventTouchDown];
-        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchCancel];
-        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpInside];
-        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchUpOutside];
-        [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventTouchDragInside];
-        [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventValueChanged];
-//        slider.backgroundColor = [UIColor redColor];
+        [slider addTarget:self action:@selector(endScrubbing:) forControlEvents:UIControlEventTouchCancel | UIControlEventTouchUpInside | UIControlEventTouchUpOutside];
+        [slider addTarget:self action:@selector(scrub:) forControlEvents:UIControlEventTouchDragInside | UIControlEventValueChanged];
         slider;
+
     });
     [self addSubview:self.scrubber];
     
