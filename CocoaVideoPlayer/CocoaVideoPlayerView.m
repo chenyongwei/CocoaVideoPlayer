@@ -13,6 +13,7 @@
 #import "CocoaVideoPlayerControlView.h"
 #import "CocoaVideoPlayerControlViewDelegate.h"
 #import "CocoaVideoPlayerControlViewConfiguration.h"
+#import "CocoaVideoPlayerSubtitleView.h"
 
 #define PROGRESS_CHECK_INTERVAL 0.2f
 
@@ -44,11 +45,11 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 @property (nonatomic, strong) AVPlayer *videoPlayer;
 @property (nonatomic, strong) UIButton *playButton;
 @property (nonatomic, strong) CocoaVideoPlayerControlView *controlView;
-@property (nonatomic) CGFloat controlViewScrubberWidth;
-@property (nonatomic, strong) UILabel *subtitleLabel;
-@property (nonatomic, strong) UIView *subtitleView;
+@property (nonatomic, strong) CocoaVideoPlayerSubtitleView *subtitleView;
+@property (nonatomic) CGFloat controlViewScrubberWidth; //TODO: clean this aways
 
--(void)adjustSubtitleLabelSize;
+
+-(void)adjustSubtitleViewSize;
 -(void)handlePauseNotification:(NSNotification *)notification;
 
 @end
@@ -144,31 +145,19 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     [self insertSubview:self.controlView aboveSubview:self.posterView];
     
     self.subtitleView = ({
-        UIView *v = [[UIView alloc] initWithFrame:
+        CocoaVideoPlayerSubtitleView *v = [[CocoaVideoPlayerSubtitleView alloc] initWithFrame:
          CGRectMake(0,
                     CGRectGetHeight(self.frame) - 65,
                     CGRectGetWidth(self.frame),
                     30)];
-        v.backgroundColor = [UIColor blackColor];
-        v.alpha = 0.5;
-        v.hidden = YES;
+//        v.backgroundColor = [UIColor blackColor];
+//        v.alpha = 0.5;
+//        v.hidden = YES;
         v;
     });
     [self insertSubview:self.subtitleView aboveSubview:self.posterView];
     
-    self.subtitleLabel = ({
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10,
-                                                  CGRectGetHeight(self.frame) - 65,
-                                                  CGRectGetWidth(self.frame) - 20,
-                                                  30)];
-        label.textColor = [UIColor whiteColor];
-        label.numberOfLines = 0;
-        label.backgroundColor = [UIColor clearColor];
-        label.text = @"";
-        label.hidden = YES;
-        label;
-    });
-    [self insertSubview:self.subtitleLabel aboveSubview:self.subtitleView];
+    // subtitle child views
     
     self.videoPlayer = [[AVPlayer alloc] initWithPlayerItem:playerItem];
     AVPlayerLayer *playerLayer = ({
@@ -199,7 +188,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     if (!self.controlView.hidden)
     {
         self.controlView.hidden = YES;
-        [self adjustSubtitleLabelSize];
+        [self adjustSubtitleViewSize];
         
         return;
     }
@@ -207,7 +196,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     self.controlView.hidden = NO;
     
     // reposition the subtitleLabel if the progress bar show up
-    [self adjustSubtitleLabelSize];
+    [self adjustSubtitleViewSize];
     
     [self hideProgressViewWithDelay];
 }
@@ -264,7 +253,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     {
         self.controlView.hidden = YES;
         // reposition the subtitleLabel if the progress bar is hidden
-        [self adjustSubtitleLabelSize];
+        [self adjustSubtitleViewSize];
     }
 }
 
@@ -291,6 +280,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         self.playButton.hidden = YES;
     }
     self.posterView.hidden = YES;
+    self.subtitleView.hidden = !showSubtitles;
     [self.controlView showPlayingButtons];
     [self hideProgressViewWithDelay];
     
@@ -527,35 +517,35 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 #pragma mark - Subtitles
 
--(void)adjustSubtitleLabelSize
+-(void)adjustSubtitleViewSize
 {
-    if (!showSubtitles)
-    {
-        return;
-    }
-    
-    if (self.subtitleLabel.text.length > 0)
-    {
-        [self.subtitleLabel sizeToFit];
-        
-        if (self.controlView.hidden)
-        {
-            self.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 2 - CGRectGetHeight(self.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleLabel.frame));
-        }
-        else
-        {
-            self.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 37 - CGRectGetHeight(self.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleLabel.frame));
-        }
-        
-        self.subtitleLabel.hidden = NO;
-        self.subtitleView.hidden = NO;
-        self.subtitleView.frame = CGRectMake(0, self.subtitleLabel.frame.origin.y - 2, CGRectGetWidth(self.frame), CGRectGetHeight(self.subtitleLabel.frame) + 5);
-    }
-    else
-    {
-        self.subtitleLabel.hidden = YES;
-        self.subtitleView.hidden = YES;
-    }
+//    if (!showSubtitles)
+//    {
+//        return;
+//    }
+//    
+//    if (self.subtitleView.subtitle.length > 0)
+//    {
+////        [self.subtitleView.subtitleLabel sizeToFit];
+//        
+//        if (self.controlView.hidden)
+//        {
+////            self.subtitleView.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 2 - CGRectGetHeight(self.subtitleView.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleView.subtitleLabel.frame));
+//        }
+//        else
+//        {
+////            self.subtitleView.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 37 - CGRectGetHeight(self.subtitleView.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleView.subtitleLabel.frame));
+//        }
+//        
+////        self.subtitleView.subtitleLabel.hidden = NO;
+//        self.subtitleView.hidden = NO;
+//        self.subtitleView.frame = CGRectMake(0, self.subtitleView.subtitleLabel.frame.origin.y - 2, CGRectGetWidth(self.frame), CGRectGetHeight(self.subtitleView.subtitleLabel.frame) + 5);
+//    }
+//    else
+//    {
+////        self.subtitleView.subtitleLabel.hidden = YES;
+//        self.subtitleView.hidden = YES;
+//    }
 }
 
 
@@ -812,19 +802,28 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
             
             if (time >= script.startTime && time <= script.endTime)
             {
-                if (self.subtitleLabel.text != script.txt)
+                if (![self.subtitleView.subtitle isEqualToString:script.txt])
                 {
-                    self.subtitleLabel.text = script.txt;
-                    [self adjustSubtitleLabelSize];
+                    self.subtitleView.subtitle = script.txt;
+//                    [self adjustSubtitleViewSize];
+//                    NSLog(@"currentTime: %f, startTime: %f, endTime: %f", time, script.startTime, script.endTime);
                 }
                 break;
             }
+            else if (time > script.endTime)
+            {
+                continue;
+            }
             else
             {
-                self.subtitleLabel.text = @"";
+                if (![self.subtitleView.subtitle isEqualToString:@""]) {
+                    self.subtitleView.subtitle = @"";
+//                    NSLog(@"currentTime: %f, startTime: %f, endTime: %f", time, script.startTime, script.endTime);
+                }
+                break;
             }
             
-            [self adjustSubtitleLabelSize];
+            [self adjustSubtitleViewSize];
         }
     }
 }
@@ -840,7 +839,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 -(void)toggleSubtitle
 {
     showSubtitles = !showSubtitles;
-    self.subtitleLabel.hidden = !showSubtitles;
+//    self.subtitleView.subtitleLabel.hidden = !showSubtitles;
     self.subtitleView.hidden = !showSubtitles;
 }
 

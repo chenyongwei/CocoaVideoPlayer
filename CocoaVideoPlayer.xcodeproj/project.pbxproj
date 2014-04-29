@@ -25,6 +25,7 @@
 		85C3B0F919096392000FCAEA /* CocoaVideoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 85C3B0F519096392000FCAEA /* CocoaVideoModel.m */; };
 		85C3B0FA19096392000FCAEA /* CocoaVideoScriptModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 85C3B0F719096392000FCAEA /* CocoaVideoScriptModel.m */; };
 		85C3B0FC19096562000FCAEA /* content in Resources */ = {isa = PBXBuildFile; fileRef = 85C3B0FB19096562000FCAEA /* content */; };
+		85E37124190F3F8B007A8823 /* CocoaVideoPlayerSubtitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 85E37123190F3F8B007A8823 /* CocoaVideoPlayerSubtitleView.m */; };
 		C8B9F6B87ECB4D7CB38C31AF /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AC905F73EB64082BF930087 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +65,8 @@
 		85C3B0FB19096562000FCAEA /* content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = content; sourceTree = "<group>"; };
 		85E3711D190E4AC2007A8823 /* CocoaVideoPlayerControlViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaVideoPlayerControlViewDelegate.h; sourceTree = "<group>"; };
 		85E3711E190E4FBB007A8823 /* CocoaVideoPlayerControlViewConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaVideoPlayerControlViewConfiguration.h; sourceTree = "<group>"; };
+		85E37122190F3F8B007A8823 /* CocoaVideoPlayerSubtitleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaVideoPlayerSubtitleView.h; sourceTree = "<group>"; };
+		85E37123190F3F8B007A8823 /* CocoaVideoPlayerSubtitleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CocoaVideoPlayerSubtitleView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +156,8 @@
 				85E3711D190E4AC2007A8823 /* CocoaVideoPlayerControlViewDelegate.h */,
 				85E3711E190E4FBB007A8823 /* CocoaVideoPlayerControlViewConfiguration.h */,
 				85AB7255190EAED5009BE413 /* CocoaVideoPlayerControlViewConfiguration.m */,
+				85E37122190F3F8B007A8823 /* CocoaVideoPlayerSubtitleView.h */,
+				85E37123190F3F8B007A8823 /* CocoaVideoPlayerSubtitleView.m */,
 				85C3B0F119096392000FCAEA /* DataModel */,
 			);
 			path = CocoaVideoPlayer;
@@ -278,6 +283,7 @@
 				858F50CC1906C5520099846E /* ViewController.m in Sources */,
 				85C3B0DE1909563B000FCAEA /* CocoaVideoPlayerView.m in Sources */,
 				85C3B0FA19096392000FCAEA /* CocoaVideoScriptModel.m in Sources */,
+				85E37124190F3F8B007A8823 /* CocoaVideoPlayerSubtitleView.m in Sources */,
 				85AB7256190EAED5009BE413 /* CocoaVideoPlayerControlViewConfiguration.m in Sources */,
 				85C3B0F919096392000FCAEA /* CocoaVideoModel.m in Sources */,
 				858F50C61906C5520099846E /* AppDelegate.m in Sources */,
