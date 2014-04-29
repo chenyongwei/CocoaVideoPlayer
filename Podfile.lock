@@ -17,13 +17,16 @@ PODS:
   - Mantle (1.4.1):
     - Mantle/extobjc
   - Mantle/extobjc (1.4.1)
+  - pop (1.0.2)
 
 DEPENDENCIES:
   - FontAwesomeKit (~> 2.1.0)
   - Mantle (~> 1.4.1)
+  - pop
 
 SPEC CHECKSUMS:
   FontAwesomeKit: 7d935e100337d503bdaefde2ea16be740b81ed13
   Mantle: 0714cdb2b8559d9e6c2410d6a8529e3307bff189
+  pop: 55f6c972fbfb644dfcf1bd6892d001feaa32cc38
 
 COCOAPODS: 0.32.1

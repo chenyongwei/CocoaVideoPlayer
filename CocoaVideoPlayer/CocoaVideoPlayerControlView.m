@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Kingway. All rights reserved.
 //
 
+#import <POP/POP.h>
+
 #import "CocoaVideoPlayerControlView.h"
 #import "FAKFontAwesome.h"
 #import "CocoaVideoPlayerControlViewConfiguration.h"
@@ -18,6 +20,8 @@
 @property (nonatomic, strong) UIButton *subtitleButton;
 
 @property (nonatomic, strong) CocoaVideoPlayerControlViewConfiguration *config;
+
+@property (nonatomic) BOOL isHiddenNow;
 
 @end
 
@@ -161,7 +165,6 @@
 //    [self.scrubber setValue:0.0];
 //}
 
-
 -(void)toggleSubtitleButton
 {
     self.config.highSubtitleButton = !self.config.highSubtitleButton;
@@ -170,5 +173,53 @@
     [self.delegate toggleSubtitle];
 }
 
+-(BOOL)isHidden
+{
+    return self.isHiddenNow;
+}
+
+-(void)setHidden:(BOOL)hidden
+{
+    if (hidden && !self.isHiddenNow) {
+        // do hide animation
+
+        POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewBounds];
+//        NSLog(@"!!!!!controlView frame, x=%f y=%f width=%f heigth =%f", self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height);
+        anim.toValue = [NSValue valueWithCGRect:CGRectMake(self.bounds.origin.x, -CGRectGetHeight(self.bounds), CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds))];
+        [anim removedOnCompletion];
+        [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+            self.isHiddenNow = hidden;
+
+            NSLog(@"animation1 done");
+        }];
+        
+        [self pop_addAnimation:anim forKey:@"size-"];
+
+        NSLog(@"animation1 strat");
+    
+        
+    }
+    else if(!hidden && self.isHiddenNow) {
+
+        POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewBounds];
+//        NSLog(@"!!!!!controlView frame, x=%f y=%f width=%f heigth =%f", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
+        anim.toValue = [NSValue valueWithCGRect:CGRectMake(0, 0, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds))];
+        [anim removedOnCompletion];
+        [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+            self.isHiddenNow = hidden;
+            
+            NSLog(@"animation2 done");
+
+        }];
+        [self pop_addAnimation:anim forKey:@"size+"];
+        NSLog(@"animation2 strat");
+    }
+    
+//    NSLog(@"!!!!!controlView set to hidden=%@", hidden ? @"YES" : @"NO");
+    //
+//    [super setHidden:hidden];
+    
+
+}
 
 @end
