@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Kingway. All rights reserved.
 //
 
+#import <POP/POP.h>
+
 #import "CocoaVideoPlayerView.h"
 #import "CocoaVideoPlayerNotification.h"
 #import "CocoaVideoModel.h"
@@ -14,6 +16,7 @@
 #import "CocoaVideoPlayerControlViewDelegate.h"
 #import "CocoaVideoPlayerControlViewConfiguration.h"
 #import "CocoaVideoPlayerSubtitleView.h"
+
 
 #define PROGRESS_CHECK_INTERVAL 0.2f
 
@@ -39,6 +42,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     AVPlayerItem *playerItem;
     BOOL seekToZeroBeforePlay;
     BOOL showSubtitles;
+    BOOL showControlView;
 }
 
 @property (nonatomic, strong) UIImageView *posterView;
@@ -94,6 +98,9 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 -(void)setupPlayerUI
 {
+    
+    self.clipsToBounds = YES;
+
     // player UI configuration
     // TODO: move to interface
     CGSize playIconSize = CGSizeMake(80, 80);
@@ -178,6 +185,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 }
 
+
+
 -(void)handleTap
 {
     if (!self.posterView.hidden)
@@ -187,13 +196,15 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     
     if (!self.controlView.hidden)
     {
-        self.controlView.hidden = YES;
+//        self.controlView.hidden = YES;
+        [self toggleControlView];
         [self adjustSubtitleViewSize];
         
         return;
     }
     
-    self.controlView.hidden = NO;
+//    self.controlView.hidden = NO;
+    [self toggleControlView];
     
     // reposition the subtitleLabel if the progress bar show up
     [self adjustSubtitleViewSize];
@@ -251,7 +262,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     }
     else
     {
-        self.controlView.hidden = YES;
+//        self.controlView.hidden = YES;
+            [self toggleControlView];
         // reposition the subtitleLabel if the progress bar is hidden
         [self adjustSubtitleViewSize];
     }
@@ -477,7 +489,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     self.playButton.hidden = NO;
     self.posterView.hidden = NO;
     [self.controlView showPausedButtons];
-    self.controlView.hidden = YES;
+//    self.controlView.hidden = YES;
+        [self toggleControlView];
     [self.videoPlayer seekToTime:kCMTimeZero];
     self.subtitleView.hidden = YES;
     
@@ -835,6 +848,50 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     return restoreAfterScrubbingRate != 0.f || [self.videoPlayer rate] != 0.f;
 }
 
+-(void)toggleControlView
+{
+    showControlView = !showControlView;
+    
+    if (showControlView) {
+        // do hide animation
+        
+        POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+        //        NSLog(@"!!!!!controlView frame, x=%f y=%f width=%f heigth =%f", self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height);
+        NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
+//        anim.toValue = [NSValue valueWithCGRect:CGRectMake(self.controlView.bounds.origin.x, 0, CGRectGetWidth(self.controlView.bounds), CGRectGetHeight(self.controlView.bounds))];
+        anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) + CGRectGetHeight(self.controlView.frame)/2)];
+        [anim removedOnCompletion];
+        [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+            self.controlView.hidden = NO;
+            
+            NSLog(@"animation1 done");
+        }];
+        
+        [self.controlView pop_addAnimation:anim forKey:@"size-"];
+        
+        NSLog(@"animation1 strat");
+        
+        
+    }
+    else {
+        
+        POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+        //        NSLog(@"!!!!!controlView frame, x=%f y=%f width=%f heigth =%f", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
+                NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
+//        anim.toValue = [NSValue valueWithCGRect:CGRectMake(0, -CGRectGetHeight(self.controlView.bounds), CGRectGetWidth(self.controlView.bounds), CGRectGetHeight(self.controlView.bounds))];
+        anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) - CGRectGetHeight(self.controlView.frame)/2)];
+        [anim removedOnCompletion];
+        [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+            self.controlView.hidden = YES;
+            
+            NSLog(@"animation2 done");
+            
+        }];
+        [self.controlView pop_addAnimation:anim forKey:@"size+"];
+        NSLog(@"animation2 strat");
+    }
+   
+}
 
 -(void)toggleSubtitle
 {

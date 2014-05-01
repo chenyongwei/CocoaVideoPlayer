@@ -48,7 +48,7 @@
         return;
     }
     _subtitle = subtitle;
-    NSLog(@"subtitle was set to: %@", subtitle);
+//    NSLog(@"subtitle was set to: %@", subtitle);
     self.subtitleLabel.text = subtitle;
     [self.subtitleLabel sizeToFit];
     
