@@ -52,8 +52,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 @property (nonatomic, strong) CocoaVideoPlayerSubtitleView *subtitleView;
 @property (nonatomic) CGFloat controlViewScrubberWidth; //TODO: clean this aways
 
-
--(void)adjustSubtitleViewSize;
 -(void)handlePauseNotification:(NSNotification *)notification;
 
 @end
@@ -106,6 +104,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     CGSize playIconSize = CGSizeMake(80, 80);
     
     showSubtitles = YES;
+    showControlView = YES;
     
     self.posterView = [[UIImageView alloc] initWithFrame:
                             CGRectMake(0,
@@ -139,7 +138,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         config.backgroundColor = [UIColor blackColor];
         config.alpha = 0.8;
         config.enableSubtitleButton = YES;
-        config.highSubtitleButton = showSubtitles;
+        config.highlightSubtitleButton = showSubtitles;
         
         CocoaVideoPlayerControlView *v = [[CocoaVideoPlayerControlView alloc] initWithFrame:
                         CGRectMake(0,
@@ -147,9 +146,12 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
                                    CGRectGetWidth(self.frame),
                                    35) configuration:config];
         v.delegate = self;
+        v.hidden = YES;
         v;
     });
     [self insertSubview:self.controlView aboveSubview:self.posterView];
+//    [self toggleControlView];
+
     
     self.subtitleView = ({
         CocoaVideoPlayerSubtitleView *v = [[CocoaVideoPlayerSubtitleView alloc] initWithFrame:
@@ -185,33 +187,14 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 }
 
-
-
 -(void)handleTap
 {
     if (!self.posterView.hidden)
     {
         return;
     }
-    
-    if (!self.controlView.hidden)
-    {
-//        self.controlView.hidden = YES;
-        [self toggleControlView];
-        [self adjustSubtitleViewSize];
-        
-        return;
-    }
-    
-//    self.controlView.hidden = NO;
     [self toggleControlView];
-    
-    // reposition the subtitleLabel if the progress bar show up
-    [self adjustSubtitleViewSize];
-    
-    [self hideProgressViewWithDelay];
 }
-
 
 #pragma mark - Setters
 
@@ -254,26 +237,11 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     return restoreAfterScrubbingRate != 0.f;
 }
 
--(void)hideProgressView
-{
-    if ([self isScrubbing])
-    {
-        return;
-    }
-    else
-    {
-//        self.controlView.hidden = YES;
-            [self toggleControlView];
-        // reposition the subtitleLabel if the progress bar is hidden
-        [self adjustSubtitleViewSize];
-    }
-}
 
-
--(void)hideProgressViewWithDelay
+-(void)hideControlViewWithDelay
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideProgressView) object:nil];
-    [self performSelector:@selector(hideProgressView) withObject:nil afterDelay:2.0];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideControlView) object:nil];
+    [self performSelector:@selector(hideControlView) withObject:nil afterDelay:2.0];
 }
 
 
@@ -294,8 +262,8 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     self.posterView.hidden = YES;
     self.subtitleView.hidden = !showSubtitles;
     [self.controlView showPlayingButtons];
-    [self hideProgressViewWithDelay];
-    
+    [self showControlView];
+
     [self.videoPlayer play];
     // Notifiy other media players with current playing url
     [[NSNotificationCenter defaultCenter] postNotificationName:CocoaVideoPlayerDidStartPlayNotification object:self.url];
@@ -309,7 +277,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         [self.videoPlayer pause];
         self.playButton.hidden = NO;
         [self.controlView showPausedButtons];
-        [self hideProgressViewWithDelay];
+        [self hideControlViewWithDelay];
     }
 }
 
@@ -336,35 +304,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         }
     }
 }
-
-
--(void)updateCueMarksDataSturcture
-{
-    if ([self.cueMarks count] <= 0 || [[self.cueMarks objectAtIndex:0] isKindOfClass:[NSNumber class]])
-    {
-        // no cueMarks in json data structre
-        // or cueMarks data structure already be converted to seconds
-        return;
-    }
-    
-    for (int i = 0; i < [self.cueMarks count]; i++)
-    {
-//        NSString *timeline = ((CocoaVideoCueMarkModel *)[self.cueMarks objectAtIndex:i]).timeline;
-        
-        // Format NSString to NSDate
-//        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-//        [dateFormat setDateFormat:@"mm:ss:SSS"];
-//        NSDate *date = [dateFormat dateFromString:timeline];
-//        
-//        // Get the Gregorian calendar
-//        NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-//        NSDateComponents *dateComponents = [cal components:NSMinuteCalendarUnit | NSSecondCalendarUnit fromDate:date];
-//        NSInteger seconds = dateComponents.minute * 60 + dateComponents.second;
-        
-//        self.cueMarks[i] = [[NSNumber alloc] initWithInt:seconds];
-    }
-}
-
 
 /*
  Invoked at the completion of the loading of the values for all keys on the asset that we require.
@@ -489,8 +428,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     self.playButton.hidden = NO;
     self.posterView.hidden = NO;
     [self.controlView showPausedButtons];
-//    self.controlView.hidden = YES;
-        [self toggleControlView];
     [self.videoPlayer seekToTime:kCMTimeZero];
     self.subtitleView.hidden = YES;
     
@@ -526,41 +463,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         self.posterView.hidden = YES;
     }
 }
-
-
-#pragma mark - Subtitles
-
--(void)adjustSubtitleViewSize
-{
-//    if (!showSubtitles)
-//    {
-//        return;
-//    }
-//    
-//    if (self.subtitleView.subtitle.length > 0)
-//    {
-////        [self.subtitleView.subtitleLabel sizeToFit];
-//        
-//        if (self.controlView.hidden)
-//        {
-////            self.subtitleView.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 2 - CGRectGetHeight(self.subtitleView.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleView.subtitleLabel.frame));
-//        }
-//        else
-//        {
-////            self.subtitleView.subtitleLabel.frame = CGRectMake(10, CGRectGetHeight(self.frame) - 37 - CGRectGetHeight(self.subtitleView.subtitleLabel.frame), CGRectGetWidth(self.frame) - 20, CGRectGetHeight(self.subtitleView.subtitleLabel.frame));
-//        }
-//        
-////        self.subtitleView.subtitleLabel.hidden = NO;
-//        self.subtitleView.hidden = NO;
-//        self.subtitleView.frame = CGRectMake(0, self.subtitleView.subtitleLabel.frame.origin.y - 2, CGRectGetWidth(self.frame), CGRectGetHeight(self.subtitleView.subtitleLabel.frame) + 5);
-//    }
-//    else
-//    {
-////        self.subtitleView.subtitleLabel.hidden = YES;
-//        self.subtitleView.hidden = YES;
-//    }
-}
-
 
 #pragma mark - Scrubbing
 
@@ -666,7 +568,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 		restoreAfterScrubbingRate = 0.f;
 	}
     
-    [self hideProgressViewWithDelay];
+    [self hideControlViewWithDelay];
 }
 
 
@@ -818,8 +720,6 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
                 if (![self.subtitleView.subtitle isEqualToString:script.txt])
                 {
                     self.subtitleView.subtitle = script.txt;
-//                    [self adjustSubtitleViewSize];
-//                    NSLog(@"currentTime: %f, startTime: %f, endTime: %f", time, script.startTime, script.endTime);
                 }
                 break;
             }
@@ -831,12 +731,9 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
             {
                 if (![self.subtitleView.subtitle isEqualToString:@""]) {
                     self.subtitleView.subtitle = @"";
-//                    NSLog(@"currentTime: %f, startTime: %f, endTime: %f", time, script.startTime, script.endTime);
                 }
                 break;
             }
-            
-            [self adjustSubtitleViewSize];
         }
     }
 }
@@ -850,47 +747,63 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 -(void)toggleControlView
 {
-    showControlView = !showControlView;
-    
     if (showControlView) {
-        // do hide animation
-        
-        POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
-        //        NSLog(@"!!!!!controlView frame, x=%f y=%f width=%f heigth =%f", self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height);
-        NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
-//        anim.toValue = [NSValue valueWithCGRect:CGRectMake(self.controlView.bounds.origin.x, 0, CGRectGetWidth(self.controlView.bounds), CGRectGetHeight(self.controlView.bounds))];
-        anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) + CGRectGetHeight(self.controlView.frame)/2)];
-        [anim removedOnCompletion];
-        [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
-            self.controlView.hidden = NO;
-            
-            NSLog(@"animation1 done");
-        }];
-        
-        [self.controlView pop_addAnimation:anim forKey:@"size-"];
-        
-        NSLog(@"animation1 strat");
-        
-        
+        [self hideControlView];
     }
     else {
-        
-        POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
-        //        NSLog(@"!!!!!controlView frame, x=%f y=%f width=%f heigth =%f", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
-                NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
-//        anim.toValue = [NSValue valueWithCGRect:CGRectMake(0, -CGRectGetHeight(self.controlView.bounds), CGRectGetWidth(self.controlView.bounds), CGRectGetHeight(self.controlView.bounds))];
-        anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) - CGRectGetHeight(self.controlView.frame)/2)];
-        [anim removedOnCompletion];
-        [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
-            self.controlView.hidden = YES;
-            
-            NSLog(@"animation2 done");
-            
-        }];
-        [self.controlView pop_addAnimation:anim forKey:@"size+"];
-        NSLog(@"animation2 strat");
+        [self showControlView];
     }
-   
+    
+}
+
+-(void)showControlView
+{
+    self.controlView.hidden = NO;
+    
+    POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+    [self.controlView pop_addAnimation:anim forKey:@"controlView-center"];
+    
+    NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
+    anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) - CGRectGetHeight(self.controlView.frame)/2)];
+    [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+        NSLog(@"animation2 done");
+        showControlView = YES;
+        [self hideControlViewWithDelay];
+    }];
+    NSLog(@"animation2 strat");
+    
+    POPSpringAnimation *subtitleAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+    subtitleAnim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.subtitleView.center.x, CGRectGetHeight(self.frame) -CGRectGetHeight(self.controlView.frame) - CGRectGetHeight(self.subtitleView.frame)/2)];
+    [subtitleAnim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+    }];
+    [self.subtitleView pop_addAnimation:subtitleAnim forKey:@"subtitleView-center"];
+
+}
+
+-(void)hideControlView
+{
+    if ([self isScrubbing])
+    {
+        return;
+    }
+    
+    POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+    [self.controlView pop_addAnimation:anim forKey:@"controlView-center"];
+    // do hide animation
+    NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
+    anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) + CGRectGetHeight(self.controlView.frame)/2)];
+    [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+        NSLog(@"animation1 done");
+        showControlView = NO;
+
+    }];
+    NSLog(@"animation1 strat");
+
+    POPSpringAnimation *subtitleAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+    subtitleAnim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.subtitleView.center.x, CGRectGetHeight(self.frame) - CGRectGetHeight(self.subtitleView.frame)/2)];
+    [subtitleAnim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
+    }];
+    [self.subtitleView pop_addAnimation:subtitleAnim forKey:@"subtitleView-center"];
 }
 
 -(void)toggleSubtitle

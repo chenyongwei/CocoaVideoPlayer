@@ -88,11 +88,11 @@
 		858F50A91906C5520099846E = {
 			isa = PBXGroup;
 			children = (
-				858F50BB1906C5520099846E /* CocoaVideoPlayerDemo */,
 				858F50EA1906C5990099846E /* CocoaVideoPlayer */,
+				858F50BB1906C5520099846E /* CocoaVideoPlayerDemo */,
 				858F50B41906C5520099846E /* Frameworks */,
-				858F50B31906C5520099846E /* Products */,
 				499C8985B4C7477FA91D596E /* Pods.xcconfig */,
+				858F50B31906C5520099846E /* Products */,
 			);
 			sourceTree = "<group>";
 		};

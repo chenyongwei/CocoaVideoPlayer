@@ -19,6 +19,6 @@
 
 // Subtitle button
 @property (nonatomic) BOOL enableSubtitleButton;
-@property (nonatomic) BOOL highSubtitleButton;
+@property (nonatomic) BOOL highlightSubtitleButton;
 
 @end

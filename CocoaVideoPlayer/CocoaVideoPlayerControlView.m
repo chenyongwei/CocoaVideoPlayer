@@ -19,8 +19,6 @@
 
 @property (nonatomic, strong) CocoaVideoPlayerControlViewConfiguration *config;
 
-@property (nonatomic) BOOL isHiddenNow;
-
 @end
 
 @implementation CocoaVideoPlayerControlView
@@ -48,7 +46,6 @@
         UIImage *playIconImage = [playIcon imageWithSize:CGSizeMake(30, 30)];
         [btn setImage:playIconImage forState:UIControlStateNormal];
         [btn addTarget:self action:@selector(play:) forControlEvents:UIControlEventTouchUpInside];
-//        btn.backgroundColor = [UIColor blueColor];
         btn;
     });
     [self addSubview:self.playButton];
@@ -61,7 +58,6 @@
         UIImage *stopIconImage = [stopIcon imageWithSize:CGSizeMake(30, 30)];
         [btn setImage:stopIconImage forState:UIControlStateNormal];
         [btn addTarget:self action:@selector(pause:) forControlEvents:UIControlEventTouchUpInside];
-//        btn.backgroundColor = [UIColor yellowColor];
         btn;
     });
     [self addSubview:self.stopButton];
@@ -91,7 +87,7 @@
             [btn setImage:subTitleOnImage forState:UIControlStateSelected];
             
             [btn addTarget:self action:@selector(toggleSubtitleButton) forControlEvents:UIControlEventTouchUpInside];
-            btn.selected = self.config.highSubtitleButton;
+            btn.selected = self.config.highlightSubtitleButton;
             btn;
         });
         [self addSubview:self.subtitleButton];
@@ -154,36 +150,15 @@
 -(void)setScrubberValue:(float)value
 {
     // the value is from 0 to 1
-//    NSLog(@"scrubber value set to: %f", value);
     [self.scrubber setValue:value];
 }
 
-//-(void)resetScrubber
-//{
-//    [self.scrubber setValue:0.0];
-//}
-
 -(void)toggleSubtitleButton
 {
-    self.config.highSubtitleButton = !self.config.highSubtitleButton;
+    self.config.highlightSubtitleButton = !self.config.highlightSubtitleButton;
     
-    self.subtitleButton.selected = self.config.highSubtitleButton;
+    self.subtitleButton.selected = self.config.highlightSubtitleButton;
     [self.delegate toggleSubtitle];
-}
-
--(BOOL)isHidden
-{
-    return self.isHiddenNow;
-}
-
--(void)setHidden:(BOOL)hidden
-{
-    self.isHiddenNow = hidden;
-//    NSLog(@"!!!!!controlView set to hidden=%@", hidden ? @"YES" : @"NO");
-    //
-//    [super setHidden:hidden];
-    
-
 }
 
 @end

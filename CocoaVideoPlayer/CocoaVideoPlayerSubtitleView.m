@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Kingway. All rights reserved.
 //
 
+#import <POP/POP.h>
+
 #import "CocoaVideoPlayerSubtitleView.h"
 
 @interface CocoaVideoPlayerSubtitleView()
@@ -47,13 +49,24 @@
     if (_subtitle == subtitle) {
         return;
     }
+
+    POPSpringAnimation *anim = [self pop_animationForKey:@"subtitleView-center"];
+    if (anim) {
+        NSLog(@"!!!!animating");
+        [anim setCompletionBlock:^(POPAnimation *animate, BOOL isCompleted) {
+            
+            NSLog(@"!!!!animating done!!!");
+            [self setSubtitle:subtitle];
+            
+        }];
+        return;
+    }
+    
     _subtitle = subtitle;
-//    NSLog(@"subtitle was set to: %@", subtitle);
     self.subtitleLabel.text = subtitle;
     [self.subtitleLabel sizeToFit];
     
     self.frame = CGRectMake(0, CGRectGetHeight(self.frame) + self.frame.origin.y - CGRectGetHeight(self.subtitleLabel.frame) , CGRectGetWidth(self.frame), CGRectGetHeight(self.subtitleLabel.frame));
 }
-
 
 @end

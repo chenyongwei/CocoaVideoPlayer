@@ -13,9 +13,7 @@
 
 @optional
 -(void)videoPlayerDidStartPlaying:(AVPlayer *)player;
-
 -(void)videoPlayerDidFinishPlaying:(AVPlayer *)player;
-
 -(void)videoPlayerDidChangeCueMarkIndex:(int)cueMarkIndex;
 
 @end
