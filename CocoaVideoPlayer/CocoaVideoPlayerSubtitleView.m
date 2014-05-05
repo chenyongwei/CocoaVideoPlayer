@@ -52,10 +52,10 @@
 
     POPSpringAnimation *anim = [self pop_animationForKey:@"subtitleView-center"];
     if (anim) {
-        NSLog(@"!!!!animating");
+//        NSLog(@"!!!!animating");
         [anim setCompletionBlock:^(POPAnimation *animate, BOOL isCompleted) {
             
-            NSLog(@"!!!!animating done!!!");
+//            NSLog(@"!!!!animating done!!!");
             [self setSubtitle:subtitle];
             
         }];

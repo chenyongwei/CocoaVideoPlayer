@@ -18,5 +18,6 @@
 -(void)endScrubbing:(id)sender;
 
 -(void)toggleSubtitle;
+-(void)toggleFullscreen;
 
 @end

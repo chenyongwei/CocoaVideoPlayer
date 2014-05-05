@@ -8,10 +8,10 @@
 
 #import <POP/POP.h>
 
+#import "FAKFontAwesome.h"
 #import "CocoaVideoPlayerView.h"
 #import "CocoaVideoPlayerNotification.h"
 #import "CocoaVideoModel.h"
-#import "FAKFontAwesome.h"
 #import "CocoaVideoPlayerControlView.h"
 #import "CocoaVideoPlayerControlViewDelegate.h"
 #import "CocoaVideoPlayerControlViewConfiguration.h"
@@ -47,6 +47,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 
 @property (nonatomic, strong) UIImageView *posterView;
 @property (nonatomic, strong) AVPlayer *videoPlayer;
+@property (nonatomic, strong) AVPlayerLayer *videoPlayerLayer;
 @property (nonatomic, strong) UIButton *playButton;
 @property (nonatomic, strong) CocoaVideoPlayerControlView *controlView;
 @property (nonatomic, strong) CocoaVideoPlayerSubtitleView *subtitleView;
@@ -92,6 +93,12 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     }
     
     return self;
+}
+
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    NSLog(@"!!! frame: x=%f, y=%f, w=%f,h=%f", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
 }
 
 -(void)setupPlayerUI
@@ -169,13 +176,13 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     // subtitle child views
     
     self.videoPlayer = [[AVPlayer alloc] initWithPlayerItem:playerItem];
-    AVPlayerLayer *playerLayer = ({
+    self.videoPlayerLayer = ({
         AVPlayerLayer *avLayer = [AVPlayerLayer playerLayerWithPlayer:self.videoPlayer];
         [avLayer setFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))];
         avLayer.backgroundColor = [[UIColor grayColor] CGColor];
         avLayer;
     });
-    [self.layer insertSublayer:playerLayer below:self.posterView.layer];
+    [self.layer insertSublayer:self.videoPlayerLayer below:self.posterView.layer];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handlePauseNotification:)
@@ -255,14 +262,11 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
         [self.videoPlayer seekToTime:kCMTimeZero];
     }
     
-    if (!self.playButton.hidden)
-    {
-        self.playButton.hidden = YES;
-    }
+    self.playButton.hidden = YES;
     self.posterView.hidden = YES;
     self.subtitleView.hidden = !showSubtitles;
-    [self.controlView showPlayingButtons];
     [self showControlView];
+    [self.controlView showPlayingButtons];
 
     [self.videoPlayer play];
     // Notifiy other media players with current playing url
@@ -500,7 +504,7 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
 /* The user is dragging the movie controller thumb to scrub through the movie. */
 -(void)beginScrubbing:(id)sender
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideProgressView) object:nil];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideControlView) object:nil];
     
     restoreAfterScrubbingRate = [self.videoPlayer rate];
     [self.videoPlayer setRate:0.f];
@@ -763,14 +767,14 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
     [self.controlView pop_addAnimation:anim forKey:@"controlView-center"];
     
-    NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
+//    NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
     anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) - CGRectGetHeight(self.controlView.frame)/2)];
     [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
-        NSLog(@"animation2 done");
+//        NSLog(@"animation2 done");
         showControlView = YES;
         [self hideControlViewWithDelay];
     }];
-    NSLog(@"animation2 strat");
+//    NSLog(@"animation2 strat");
     
     POPSpringAnimation *subtitleAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
     subtitleAnim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.subtitleView.center.x, CGRectGetHeight(self.frame) -CGRectGetHeight(self.controlView.frame) - CGRectGetHeight(self.subtitleView.frame)/2)];
@@ -790,14 +794,14 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     POPSpringAnimation *anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
     [self.controlView pop_addAnimation:anim forKey:@"controlView-center"];
     // do hide animation
-    NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
+//    NSLog(@"view center: x=%f, y=%f", self.controlView.center.x, self.controlView.center.y);
     anim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.controlView.center.x, CGRectGetHeight(self.frame) + CGRectGetHeight(self.controlView.frame)/2)];
     [anim setCompletionBlock:^(POPAnimation *anim, BOOL isCompleted) {
-        NSLog(@"animation1 done");
+//        NSLog(@"animation1 done");
         showControlView = NO;
 
     }];
-    NSLog(@"animation1 strat");
+//    NSLog(@"animation1 strat");
 
     POPSpringAnimation *subtitleAnim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
     subtitleAnim.toValue = [NSValue valueWithCGPoint:CGPointMake(self.subtitleView.center.x, CGRectGetHeight(self.frame) - CGRectGetHeight(self.subtitleView.frame)/2)];
@@ -806,11 +810,38 @@ static void *AVPlayerPlaybackViewControllerCurrentItemObservationContext = &AVPl
     [self.subtitleView pop_addAnimation:subtitleAnim forKey:@"subtitleView-center"];
 }
 
+#pragma mark - ControlView delegate
+
 -(void)toggleSubtitle
 {
     showSubtitles = !showSubtitles;
 //    self.subtitleView.subtitleLabel.hidden = !showSubtitles;
     self.subtitleView.hidden = !showSubtitles;
+}
+
+-(void)toggleFullscreen
+{
+//    self.backgroundColor = [UIColor redColor];
+
+//    self.transform = CGAffineTransformIdentity;
+    CGRect fullscreenBounds = [[UIScreen mainScreen] bounds];
+    CGFloat offset = (CGRectGetHeight(fullscreenBounds) - CGRectGetWidth(fullscreenBounds)) / 2;
+    self.frame = CGRectMake(-offset,
+                            offset,
+                            CGRectGetHeight(fullscreenBounds),
+                            CGRectGetWidth(fullscreenBounds));
+
+    NSLog(@"Before center: x=%f, y=%f", self.center.x, self.center.y);
+
+    self.videoPlayerLayer.frame = self.bounds;
+    [self.videoPlayerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+    
+    self.transform = CGAffineTransformMakeRotation(M_PI_2);
+//    [self.delegate toggleFullscreen];
+    
+
+    NSLog(@"video frame: x=%f, y=%f, w=%f,h=%f", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
+    
 }
 
 #pragma mark - Error Handling

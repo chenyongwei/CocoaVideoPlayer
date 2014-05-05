@@ -26,6 +26,23 @@
     [self setupVideoPlayerView:testModel];
 }
 
+-(void)toggleFullscreen
+{
+//    self.videoPlayerView.transform = CGAffineTransformMakeRotation(0.1);
+//    
+//    CGFloat offset = (480 - 320) / 2;
+//    self.videoPlayerView.frame = CGRectMake(-offset,
+//                            offset,
+//                            480,
+//                            320);
+
+//    [UIView setAnimationDuration:0.5];
+//    self.videoPlayerView.transform = CGAffineTransformMakeRotation(M_PI_2);
+//    self.videoPlayerView.bounds = [[UIScreen mainScreen] bounds];
+//    [UIView commitAnimations];
+
+}
+
 -(void)setupVideoPlayerView:(CocoaVideoModel *)videoModel
 {
         self.videoPlayerView.delegate = self;
@@ -50,6 +67,21 @@
     
     CocoaVideoModel *model = [MTLJSONAdapter modelOfClass:[CocoaVideoModel class] fromJSONDictionary:jsonDict error:nil];
     return model;
+}
+
+-(void)videoPlayerDidChangeCueMarkIndex:(int)cueMarkIndex
+{
+    NSLog(@"cueMark index changed to: %d", cueMarkIndex);
+}
+
+-(void)videoPlayerDidStartPlaying:(AVPlayer *)player
+{
+    NSLog(@"video start playing now");
+}
+
+-(void)videoPlayerDidFinishPlaying:(AVPlayer *)player
+{
+    NSLog(@"video finish playing now");
 }
 
 - (void)didReceiveMemoryWarning

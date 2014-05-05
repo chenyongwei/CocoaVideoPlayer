@@ -16,6 +16,7 @@
 @property (nonatomic, strong) UIButton *playButton;
 @property (nonatomic, strong) UIButton *stopButton;
 @property (nonatomic, strong) UIButton *subtitleButton;
+@property (nonatomic, strong) UIButton *fullscreenButton;
 
 @property (nonatomic, strong) CocoaVideoPlayerControlViewConfiguration *config;
 
@@ -75,7 +76,7 @@
     if (self.config.enableSubtitleButton) {
         self.subtitleButton = ({
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-            btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 65, 0, 85, 30);
+            btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 80, 0, 30, 30);
             
             FAKFontAwesome *subTitleIcon = [FAKFontAwesome subscriptIconWithSize:30];
             [subTitleIcon addAttribute:NSForegroundColorAttributeName value:[UIColor grayColor]];
@@ -92,6 +93,26 @@
         });
         [self addSubview:self.subtitleButton];
     }
+    
+    self.fullscreenButton = ({
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(CGRectGetWidth(self.frame) - 35, 4, 30, 30);
+        
+        FAKFontAwesome *icon = [FAKFontAwesome expandIconWithSize:20];
+        [icon addAttribute:NSForegroundColorAttributeName value:[UIColor grayColor]];
+        UIImage *iconImage = [icon imageWithSize:CGSizeMake(20, 20)];
+        [btn setImage:iconImage forState:UIControlStateNormal];
+        
+        [icon addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor]];
+        iconImage = [icon imageWithSize:CGSizeMake(20, 20)];
+        [btn setImage:iconImage forState:UIControlStateSelected];
+        
+        [btn addTarget:self action:@selector(toggleFullscreen) forControlEvents:UIControlEventTouchUpInside];
+        btn;
+    });
+    [self addSubview:self.fullscreenButton];
+    
+    
     
 }
 
@@ -159,6 +180,11 @@
     
     self.subtitleButton.selected = self.config.highlightSubtitleButton;
     [self.delegate toggleSubtitle];
+}
+
+-(void)toggleFullscreen
+{
+    [self.delegate toggleFullscreen];
 }
 
 @end

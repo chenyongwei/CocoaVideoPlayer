@@ -16,4 +16,6 @@
 -(void)videoPlayerDidFinishPlaying:(AVPlayer *)player;
 -(void)videoPlayerDidChangeCueMarkIndex:(int)cueMarkIndex;
 
+-(void)toggleFullscreen;
+
 @end
